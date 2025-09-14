@@ -171,6 +171,20 @@
     <!-- Modals -->
     <div id="modal-overlay" class="fixed inset-0 bg-black/70 z-50 hidden"></div>
     
+    <div id="admin-password-modal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6">
+            <h2 class="text-xl font-bold text-white mb-4">Admin Access</h2>
+            <form id="admin-password-form" class="space-y-4">
+                <input type="password" id="admin-password-input" placeholder="Enter password" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white">
+                <p id="password-error" class="text-red-500 text-sm hidden">Incorrect password.</p>
+                <div class="flex gap-4">
+                    <button type="button" id="admin-password-cancel" class="btn btn-secondary w-full">Cancel</button>
+                    <button type="submit" class="btn btn-primary w-full !text-black">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="order-status-modal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
         <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">
             <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-white">Check Order Status</h2><button id="order-status-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button></div>
@@ -244,6 +258,7 @@
         let db, auth, productsCollection, categoriesCollection, ordersCollection;
         let allProducts = [], allOrders = [], cart = [];
         const SHIPPING_COST = 50.00;
+        const ADMIN_PASSWORD = 'admin123';
         
         const modalOverlay = document.getElementById('modal-overlay');
         const productGrid = document.getElementById('product-grid');
@@ -252,6 +267,8 @@
         const checkoutModal = document.getElementById('checkout-modal');
         const orderSuccessModal = document.getElementById('order-success-modal');
         const orderStatusModal = document.getElementById('order-status-modal');
+        const adminPanel = document.getElementById('admin-panel');
+        const adminPasswordModal = document.getElementById('admin-password-modal');
         
         async function initialize() {
             if (Object.keys(firebaseConfig).length === 0) return;
@@ -457,6 +474,14 @@
         });
         document.getElementById('order-status-link').addEventListener('click', (e) => { e.preventDefault(); modalOverlay.classList.remove('hidden'); orderStatusModal.classList.remove('hidden'); });
         document.getElementById('order-status-link-mobile').addEventListener('click', (e) => { e.preventDefault(); modalOverlay.classList.remove('hidden'); orderStatusModal.classList.remove('hidden'); });
+        document.getElementById('cart-toggle-btn').addEventListener('click', () => {
+             cartPanel.classList.remove('translate-x-full');
+             modalOverlay.classList.remove('hidden');
+        });
+        document.getElementById('cart-close-btn').addEventListener('click', () => {
+             cartPanel.classList.add('translate-x-full');
+             modalOverlay.classList.add('hidden');
+        });
 
         document.body.addEventListener('click', e => {
             if (e.target.closest('.update-quantity-btn')) updateQuantity(e.target.closest('.update-quantity-btn').dataset.id, parseInt(e.target.closest('.update-quantity-btn').dataset.change));
@@ -499,10 +524,40 @@
             document.getElementById(`${tab.dataset.tab}-tab`).classList.remove('hidden');
         });
         
+        document.getElementById('admin-toggle-btn').addEventListener('click', () => {
+            modalOverlay.classList.remove('hidden');
+            adminPasswordModal.classList.remove('hidden');
+        });
+        document.getElementById('admin-password-cancel').addEventListener('click', () => closeModal(adminPasswordModal));
+        document.getElementById('admin-password-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const passwordInput = document.getElementById('admin-password-input');
+            const errorMsg = document.getElementById('password-error');
+            if (passwordInput.value === ADMIN_PASSWORD) {
+                closeModal(adminPasswordModal);
+                adminPanel.classList.remove('translate-x-full');
+                modalOverlay.classList.remove('hidden');
+                passwordInput.value = '';
+                errorMsg.classList.add('hidden');
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        });
+        document.getElementById('admin-close-btn').addEventListener('click', () => {
+            adminPanel.classList.add('translate-x-full');
+            if (!document.querySelector('.fixed.inset-0.z-\\[70\\]:not(.hidden)')) {
+                 modalOverlay.classList.add('hidden');
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('admin') === 'true') document.getElementById('admin-toggle-btn').classList.remove('hidden');
-            initialize(); loadCart(); lucide.createIcons();
+            if (urlParams.get('admin') === 'true') {
+                 document.getElementById('admin-toggle-btn').classList.remove('hidden');
+            }
+            initialize(); 
+            loadCart(); 
+            lucide.createIcons();
             document.getElementById('mobile-menu-button').addEventListener('click', () => document.getElementById('mobile-menu').classList.toggle('hidden'));
         });
     </script>
