@@ -22,6 +22,9 @@
             --dark-text: #051020;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
         body {
             font-family: 'Montserrat', sans-serif;
             background-color: var(--brand-blue);
@@ -38,12 +41,12 @@
             @apply py-2 px-4 rounded-md font-semibold transition-all duration-300;
         }
         .btn-primary {
-            @apply bg-brand-gold text-brand-blue hover:bg-opacity-80;
+            @apply bg-brand-gold text-brand-blue hover:bg-opacity-80 disabled:bg-gray-500 disabled:cursor-not-allowed;
         }
         .btn-secondary {
             @apply bg-blue-900/50 text-white hover:bg-blue-800/60;
         }
-        .admin-panel {
+        .panel {
             transition: transform 0.3s ease-in-out;
         }
         .filter-btn {
@@ -54,6 +57,13 @@
         }
         .filter-btn:not(.active) {
             @apply bg-transparent text-gray-300 border-blue-800 hover:bg-blue-900/70 hover:text-white;
+        }
+        /* Admin Panel Tab Styles */
+        .admin-tab {
+            @apply px-4 py-2 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-white;
+        }
+        .admin-tab.active {
+            @apply text-brand-gold border-brand-gold;
         }
     </style>
 </head>
@@ -68,191 +78,187 @@
                         <i data-lucide="menu"></i>
                     </button>
                 </div>
-                <div class="flex-shrink-0 flex items-center justify-center md-justify-start flex-1 md:flex-none">
-                    <a href="#" class="flex items-center gap-3 text-white">
+                <div class="flex-shrink-0 flex items-center">
+                     <a href="#" class="flex items-center gap-3 text-white">
                         <span class="text-2xl font-bold tracking-wider">NILECREST</span>
                     </a>
                 </div>
-                <nav class="hidden md:flex md:space-x-8 ml-10">
+                 <nav class="hidden md:flex md:space-x-8 ml-10">
                     <a href="#" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Home</a>
+                    <a href="#about" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">About Us</a>
                     <a href="#products" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Products</a>
+                    <a href="#contact" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Contact</a>
                     <a href="#" id="order-status-link" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Order Status</a>
                 </nav>
-                <div class="flex items-center space-x-4">
-                    <!-- The admin button is now hidden by default -->
+                <div class="flex-1 flex justify-center px-2 lg:ml-6 lg:justify-end">
+                    <div class="max-w-lg w-full lg:max-w-xs">
+                        <label for="search" class="sr-only">Search</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="search" class="h-5 w-5 text-gray-400"></i>
+                            </div>
+                            <input id="search-input" name="search" class="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 bg-blue-900/60 text-gray-300 placeholder-gray-400 focus:outline-none focus:bg-blue-800/80 focus:ring-0 sm:text-sm" placeholder="Search" type="search">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4 ml-4">
                     <button id="admin-toggle-btn" class="text-gray-300 hover:text-brand-gold hidden" title="Admin Panel">
                         <i data-lucide="settings"></i>
                     </button>
-                    <a href="#" class="text-gray-300 hover:text-brand-gold"><i data-lucide="shopping-cart"></i></a>
+                    <button id="cart-toggle-btn" class="relative text-gray-300 hover:text-brand-gold">
+                        <i data-lucide="shopping-cart"></i>
+                        <span id="cart-item-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
                 </div>
             </div>
         </div>
         <div id="mobile-menu" class="hidden md:hidden">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-brand-gold">Home</a>
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-brand-gold">About Us</a>
                 <a href="#products" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-brand-gold">Products</a>
+                <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-brand-gold">Contact</a>
                 <a href="#" id="order-status-link-mobile" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-brand-gold">Order Status</a>
             </div>
         </div>
     </header>
     
     <!-- Admin Panel -->
-    <div id="admin-panel" class="admin-panel fixed top-0 right-0 h-full w-96 bg-gray-900 shadow-lg z-50 p-6 transform translate-x-full overflow-y-auto">
+    <div id="admin-panel" class="panel fixed top-0 right-0 h-full w-[450px] bg-gray-900 shadow-lg z-[60] p-6 transform translate-x-full overflow-y-auto flex flex-col">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-white">Admin Panel</h2>
-            <div class="flex items-center gap-4">
-                <button id="logout-btn" title="Logout" class="text-red-500 hover:text-red-400"><i data-lucide="log-out"></i></button>
-                <button id="admin-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+            <button id="admin-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+        </div>
+        <!-- Admin Tabs -->
+        <div class="border-b border-gray-700 mb-4">
+            <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                <button class="admin-tab active" data-tab="dashboard">Dashboard</button>
+                <button class="admin-tab" data-tab="products">Products</button>
+                <button class="admin-tab" data-tab="categories">Categories</button>
+                <button class="admin-tab" data-tab="orders">Orders</button>
+            </nav>
+        </div>
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="admin-tab-content">
+             <div class="grid grid-cols-2 gap-4 text-white">
+                <div class="bg-gray-800 p-4 rounded-lg"><p class="text-sm text-gray-400">Total Revenue</p><p id="total-revenue" class="text-2xl font-bold">EGP 0</p></div>
+                <div class="bg-gray-800 p-4 rounded-lg"><p class="text-sm text-gray-400">Total Orders</p><p id="total-orders" class="text-2xl font-bold">0</p></div>
             </div>
+            <div class="bg-gray-800 p-4 rounded-lg mt-4"><h3 class="font-semibold mb-2 text-white">Best-Selling Products</h3><ul id="best-sellers-list" class="space-y-2 text-sm text-gray-300"></ul></div>
+            <div class="bg-gray-800 p-4 rounded-lg mt-4"><h3 class="font-semibold mb-2 text-white">Low Stock Alerts</h3><ul id="low-stock-list" class="space-y-2 text-sm text-gray-300"></ul></div>
         </div>
-        
-        <!-- Manage Products -->
-        <div class="bg-gray-800 p-4 rounded-lg">
-            <h3 class="text-xl font-semibold mb-4 text-white">Manage Products</h3>
-            <form id="product-form" class="space-y-4">
-                <input type="hidden" id="product-id">
-                <input type="text" id="product-name" required placeholder="Product Name" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
-                <select id="product-category" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white"></select>
-                <input type="number" id="product-price" step="0.01" required placeholder="Price (EGP)" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
-                <input type="url" id="product-image" required placeholder="Image URL" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
-                <div class="flex gap-4">
-                    <button type="submit" class="btn btn-primary w-full !text-black">Save Product</button>
-                    <button type="button" id="form-cancel-btn" class="btn btn-secondary w-full hidden">Cancel</button>
-                </div>
-            </form>
+        <!-- Products Tab -->
+        <div id="products-tab" class="admin-tab-content hidden"><div class="bg-gray-800 p-4 rounded-lg"><h3 class="text-xl font-semibold mb-4 text-white">Manage Products</h3><form id="product-form" class="space-y-4"><input type="hidden" id="product-id"><input type="text" id="product-name" required placeholder="Product Name" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white"><textarea id="product-description" rows="3" required placeholder="Product Description" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white"></textarea><select id="product-category" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white"></select><div class="grid grid-cols-2 gap-4"><input type="number" id="product-price" step="0.01" required placeholder="Price (EGP)" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white"><input type="number" id="product-quantity" step="1" required placeholder="Quantity" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white"></div><input type="url" id="product-image" required placeholder="Image URL" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white"><button type="submit" class="btn btn-primary w-full !text-black">Save Product</button></form></div></div>
+        <!-- Categories Tab -->
+        <div id="categories-tab" class="admin-tab-content hidden"><div class="bg-gray-800 p-4 rounded-lg"><h3 class="text-xl font-semibold mb-4 text-white">Manage Categories</h3><form id="category-form" class="flex gap-2 mb-4"><input type="text" id="category-name" placeholder="New category name" required class="block w-full bg-gray-700 border-gray-600 rounded-md text-white"><button type="submit" class="btn btn-primary !text-black">Add</button></form><div id="category-list" class="space-y-2"></div></div></div>
+        <!-- Orders Tab -->
+        <div id="orders-tab" class="admin-tab-content hidden"><div class="bg-gray-800 p-4 rounded-lg"><h3 class="text-xl font-semibold mb-4 text-white">Manage Orders</h3><div id="order-list" class="space-y-2"></div></div></div>
+    </div>
+    
+    <!-- Shopping Cart Panel -->
+    <div id="cart-panel" class="panel fixed top-0 right-0 h-full w-96 bg-gray-900 shadow-lg z-[60] p-6 transform translate-x-full flex flex-col">
+        <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-white">Your Cart</h2><button id="cart-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button></div>
+        <div id="cart-items-container" class="flex-grow overflow-y-auto -mr-4 pr-4"></div>
+        <div id="cart-summary" class="border-t border-gray-700 pt-4 mt-4 space-y-2">
+            <div class="flex justify-between text-md text-gray-300"><span>Subtotal</span><span id="cart-subtotal">EGP 0.00</span></div>
+            <div class="flex justify-between text-md text-gray-300"><span>Shipping</span><span>EGP 50.00</span></div>
+            <div class="flex justify-between text-lg font-bold text-white"><span>Total</span><span id="cart-grand-total">EGP 50.00</span></div>
+            <button id="checkout-btn" class="btn btn-primary w-full mt-4 !text-black">Proceed to Checkout</button>
         </div>
-
-        <!-- Manage Categories -->
-        <div class="bg-gray-800 p-4 rounded-lg mt-6">
-             <h3 class="text-xl font-semibold mb-4 text-white">Manage Categories</h3>
-             <form id="category-form" class="flex gap-2 mb-4">
-                 <input type="text" id="category-name" placeholder="New category name" required class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
-                 <button type="submit" class="btn btn-primary whitespace-nowrap !text-black">Add</button>
-             </form>
-             <div id="category-list" class="space-y-2"></div>
-        </div>
-
-        <!-- Manage Orders -->
-        <div class="bg-gray-800 p-4 rounded-lg mt-6">
-            <h3 class="text-xl font-semibold mb-4 text-white">Manage Orders</h3>
-            <form id="order-form" class="flex gap-2 mb-4">
-                <input type="text" id="customer-name" placeholder="Customer Name" required class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
-                <button type="submit" class="btn btn-primary whitespace-nowrap !text-black">Create Order</button>
-            </form>
-            <div id="order-list" class="space-y-2"></div>
-       </div>
+        <div id="empty-cart-message" class="text-center text-gray-400 my-auto hidden"><i data-lucide="shopping-cart" class="mx-auto h-16 w-16 text-gray-600"></i><p class="mt-4">Your cart is empty.</p></div>
     </div>
 
-    <!-- Order Status Modal -->
-    <div id="status-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+    <!-- Modals -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/70 z-50 hidden"></div>
+    
+    <div id="order-status-modal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
         <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-white">Check Your Order Status</h2>
-                <button id="status-modal-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
-            </div>
-            <form id="status-form">
-                <label for="status-order-id" class="block text-sm font-medium text-gray-300">Enter your Order ID</label>
-                <div class="flex gap-2 mt-1">
-                    <input type="text" id="status-order-id" required placeholder="e.g., ORD-123456" class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
-                    <button type="submit" class="btn btn-primary !text-black">Check</button>
-                </div>
+            <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-white">Check Order Status</h2><button id="order-status-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button></div>
+            <form id="order-status-form" class="space-y-4">
+                <input type="text" id="order-id-input" placeholder="Enter your Order ID (e.g., ORD-123456)" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white">
+                <button type="submit" class="btn btn-primary w-full !text-black">Check Status</button>
             </form>
-            <div id="status-result" class="mt-6"></div>
+            <div id="order-status-result" class="mt-6"></div>
+        </div>
+    </div>
+
+    <div id="product-detail-modal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row">
+            <div id="product-detail-image" class="w-full md:w-1/2 h-64 md:h-auto bg-cover bg-center rounded-t-lg md:rounded-l-lg md:rounded-t-none"></div>
+            <div class="w-full md:w-1/2 p-6 flex flex-col overflow-y-auto">
+                <div class="flex justify-between items-start"><h2 id="product-detail-name" class="text-3xl font-bold text-white"></h2><button id="product-detail-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button></div>
+                <p id="product-detail-price" class="text-2xl font-semibold text-brand-gold mt-2"></p>
+                <p id="product-detail-description" class="text-gray-300 mt-4 flex-grow"></p>
+                <button id="product-detail-add-to-cart" class="btn btn-primary w-full mt-6 !text-black">Add to Cart</button>
+            </div>
         </div>
     </div>
     
-    <!-- Admin Password Modal -->
-    <div id="password-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-white">Admin Access</h2>
-                <button id="password-modal-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
-            </div>
-            <form id="password-form">
-                <label for="admin-password" class="block text-sm font-medium text-gray-300">Enter Password</label>
-                <div class="flex gap-2 mt-1">
-                    <input type="password" id="admin-password" required class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
-                    <button type="submit" class="btn btn-primary !text-black">Login</button>
+    <div id="checkout-modal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-lg p-6">
+            <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-white">Checkout</h2><button id="checkout-modal-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button></div>
+            <form id="checkout-form" class="space-y-4">
+                <div><label for="customer-name-checkout" class="block text-sm font-medium text-gray-300">Full Name</label><input type="text" id="customer-name-checkout" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white"></div>
+                <div><label for="customer-address" class="block text-sm font-medium text-gray-300">Address</label><input type="text" id="customer-address" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white"></div>
+                <div><label for="customer-phone" class="block text-sm font-medium text-gray-300">Phone Number</label><input type="tel" id="customer-phone" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white"></div>
+                <div class="border-t border-gray-700 pt-4 mt-4 space-y-2">
+                    <div class="flex justify-between text-sm text-gray-300"><span>Subtotal</span><span id="checkout-subtotal"></span></div>
+                    <div class="flex justify-between text-sm text-gray-300"><span>Shipping</span><span>EGP 50.00</span></div>
+                    <div class="flex justify-between text-lg font-bold text-white"><span>Total to Pay</span><span id="checkout-grand-total"></span></div>
                 </div>
-                 <p id="password-error" class="text-red-500 text-sm mt-2 hidden">Incorrect password.</p>
+                <button type="submit" class="btn btn-primary w-full !text-black mt-4">Place Order (Cash on Delivery)</button>
             </form>
         </div>
+    </div>
+
+    <div id="order-success-modal" class="fixed inset-0 z-[70] flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-8 text-center"><i data-lucide="check-circle" class="mx-auto h-16 w-16 text-green-500"></i><h2 class="text-2xl font-bold text-white mt-4">Order Placed!</h2><p class="text-gray-300 mt-2">Thank you. Your order has been placed.</p><p class="text-gray-400 mt-4">Your Order ID is:</p><p id="success-order-id" class="text-xl font-bold text-brand-gold bg-gray-900 rounded py-2 mt-1"></p><button id="order-success-close-btn" class="btn btn-primary w-full mt-6 !text-black">Continue Shopping</button></div>
     </div>
 
     <main>
         <!-- Hero Section -->
         <section class="relative h-[60vh] sm:h-[80vh] w-full bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1611652022417-a551be9c93b3?q=80&w=2070&auto=format&fit=crop');">
             <div class="absolute inset-0 bg-black/60"></div>
-            <div class="relative h-full flex flex-col items-center justify-center text-center text-white z-10 p-4">
-                <h1 class="text-4xl md:text-6xl font-bold tracking-wider">TIMELESS ELEGANCE</h1>
-                <p class="mt-4 text-lg md:text-xl max-w-lg">Crafted with passion, designed for you.</p>
-                <a href="#products" class="mt-8 bg-brand-gold text-brand-blue font-bold py-3 px-10 border border-transparent hover:bg-transparent hover:text-brand-gold hover:border-brand-gold transition-all duration-300">SHOP COLLECTION</a>
-            </div>
+            <div class="relative h-full flex flex-col items-center justify-center text-center text-white z-10 p-4"><h1 class="text-4xl md:text-6xl font-bold tracking-wider">TIMELESS ELEGANCE</h1><p class="mt-4 text-lg md:text-xl max-w-lg">Crafted with passion, designed for you.</p><a href="#products" class="mt-8 bg-brand-gold text-brand-blue font-bold py-3 px-10 border hover:bg-transparent hover:text-brand-gold hover:border-brand-gold transition-all">SHOP COLLECTION</a></div>
         </section>
 
+        <!-- About Us Section -->
+        <section id="about" class="py-16 sm:py-24 bg-brand-blue"><div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl text-center"><h2 class="text-3xl font-bold mb-4">About Nile Crest</h2><p class="text-lg text-gray-300 leading-relaxed">Born from a passion for timeless beauty and the rich heritage of Egypt, Nile Crest is more than just a jewelry brand—it's a celebration of elegance. Each piece in our collection is thoughtfully designed and crafted, blending modern sophistication with the mystique of ancient treasures. We believe that jewelry should be personal, telling a story and empowering the wearer. At Nile Crest, we are committed to exceptional quality and unique designs that you can cherish for a lifetime.</p></div></section>
+
         <!-- Products Section -->
-        <section id="products" class="py-16 sm:py-24">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold text-center mb-8">Our Products</h2>
-                <div id="category-filters" class="flex flex-wrap justify-center gap-2 mb-12"></div>
-                <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8"></div>
-                <div id="no-products-message" class="text-center text-gray-400 hidden">
-                    <p>No products have been added yet.</p>
-                </div>
-            </div>
-        </section>
+        <section id="products" class="py-16 sm:py-24"><div class="container mx-auto px-4 sm:px-6 lg:px-8"><h2 class="text-3xl font-bold text-center mb-8">Our Products</h2><div id="category-filters" class="flex flex-wrap justify-center gap-2 mb-12"></div><div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8"></div></div></section>
         
     </main>
     
-    <footer class="pt-16 pb-8 border-t border-blue-900/50">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
-            <p>&copy; 2025 Nile Crest. All Rights Reserved.</p>
-        </div>
-    </footer>
-
+    <footer id="contact" class="pt-16 pb-8 border-t border-blue-900/50"><div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center"><h2 class="text-2xl font-bold mb-4">Contact Us</h2><p class="text-gray-400 mb-6">Have a question? We'd love to hear from you. Reach out to us by email or follow us on Instagram.</p><div class="flex justify-center items-center gap-8"><a href="mailto:nilecrest8@gmail.com" class="flex items-center gap-2 text-gray-300 hover:text-brand-gold transition-colors"><i data-lucide="mail" class="w-6 h-6"></i><span class="text-lg font-semibold">Email Us</span></a><a href="https://www.instagram.com/nilecrest.eg/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-gray-300 hover:text-brand-gold transition-colors"><i data-lucide="instagram" class="w-6 h-6"></i><span class="text-lg font-semibold">Follow Us</span></a></div><p class="text-gray-500 text-sm mt-12">&copy; 2025 Nile Crest. All Rights Reserved.</p></div></footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- IMPORTANT: Change this password to something secure! ---
-        const ADMIN_PASSWORD = 'admin123';
-        // -----------------------------------------------------------
+        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, serverTimestamp, writeBatch, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : undefined;
 
-        let db, auth;
-        let productsCollection, categoriesCollection, ordersCollection;
-        let allProducts = [], allCategories = [], allOrders = [];
-        let isAdminLoggedIn = false;
-        const ORDER_STATUSES = ['Processing', 'Shipped', 'Delivered', 'Cancelled'];
-
-        const adminPanel = document.getElementById('admin-panel');
-        const passwordModal = document.getElementById('password-modal');
-        const passwordForm = document.getElementById('password-form');
-        const passwordError = document.getElementById('password-error');
-        const productForm = document.getElementById('product-form');
-        const categoryForm = document.getElementById('category-form');
-        const orderForm = document.getElementById('order-form');
-        const statusModal = document.getElementById('status-modal');
-        const statusForm = document.getElementById('status-form');
+        let db, auth, productsCollection, categoriesCollection, ordersCollection;
+        let allProducts = [], allOrders = [], cart = [];
+        const SHIPPING_COST = 50.00;
+        
+        const modalOverlay = document.getElementById('modal-overlay');
         const productGrid = document.getElementById('product-grid');
-        const categoryList = document.getElementById('category-list');
-        const orderList = document.getElementById('order-list');
-        const productCategorySelect = document.getElementById('product-category');
-        const categoryFilters = document.getElementById('category-filters');
-
+        const productDetailModal = document.getElementById('product-detail-modal');
+        const cartPanel = document.getElementById('cart-panel');
+        const checkoutModal = document.getElementById('checkout-modal');
+        const orderSuccessModal = document.getElementById('order-success-modal');
+        const orderStatusModal = document.getElementById('order-status-modal');
+        
         async function initialize() {
-            if (Object.keys(firebaseConfig).length === 0) { return; }
+            if (Object.keys(firebaseConfig).length === 0) return;
             try {
                 const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
-                else await signInAnonymously(auth);
+                db = getFirestore(app); auth = getAuth(app);
+                if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken); else await signInAnonymously(auth);
 
                 productsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'products');
                 categoriesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'categories');
@@ -261,302 +267,243 @@
                 onSnapshot(productsCollection, snapshot => {
                     allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderProducts(allProducts);
+                    updateAdminDashboard();
                 });
                 onSnapshot(categoriesCollection, snapshot => {
-                    allCategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderCategoriesAdmin(allCategories);
-                    updateCategoryDropdown(allCategories);
-                    renderCategoryFilters(allCategories);
+                    const allCategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderCategories(allCategories);
                 });
-                 onSnapshot(ordersCollection, snapshot => {
+                onSnapshot(ordersCollection, snapshot => {
                     allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderOrdersAdmin(allOrders);
+                    renderOrdersAdmin(allOrders.sort((a,b) => b.createdAt?.seconds - a.createdAt?.seconds));
+                    updateAdminDashboard();
                 });
             } catch (error) { console.error("Firebase init failed:", error); }
         }
         
-        // --- RENDER FUNCTIONS ---
         function renderProducts(productsToRender) {
-            productGrid.innerHTML = '';
-            document.getElementById('no-products-message').classList.toggle('hidden', !(productsToRender.length === 0 && allProducts.length === 0));
-            productsToRender.forEach(product => {
-                productGrid.innerHTML += `
+            productGrid.innerHTML = productsToRender.map(p => {
+                const isSoldOut = p.quantity <= 0;
+                return `
                     <div class="group relative">
-                        <div class="aspect-square w-full bg-cover bg-center rounded-md" style="background-image: url('${product.imageUrl}')" onerror="this.style.backgroundImage='url(https://placehold.co/400x400/0A192F/D4AF37?text=Image+Error)'"></div>
-                        <div class="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button class="edit-btn p-2 bg-gray-800/80 rounded-full hover:bg-brand-gold" data-id="${product.id}" title="Edit"><i data-lucide="pencil" class="w-4 h-4 text-white"></i></button>
-                            <button class="delete-btn p-2 bg-gray-800/80 rounded-full hover:bg-red-500" data-id="${product.id}" title="Delete"><i data-lucide="trash-2" class="w-4 h-4 text-white"></i></button>
+                        <div class="aspect-square w-full bg-cover bg-center rounded-md cursor-pointer product-card" style="background-image: url('${p.imageUrl}')" data-id="${p.id}">
+                            ${isSoldOut ? `<div class="absolute inset-0 bg-black/70 flex items-center justify-center"><span class="text-white font-bold text-lg border-2 border-white px-4 py-2 rounded-md">SOLD OUT</span></div>` : ''}
                         </div>
-                        <div class="pt-4 text-center">
-                            <h3 class="font-semibold text-white">${product.name}</h3>
-                            <p class="text-gray-400">EGP ${Number(product.price).toFixed(2)}</p>
-                        </div>
+                        <div class="pt-4 text-center"><h3 class="font-semibold text-white">${p.name}</h3><p class="text-gray-400">EGP ${Number(p.price).toFixed(2)}</p></div>
                     </div>`;
-            });
+            }).join('');
+        }
+        
+        function renderCategories(allCategories) {
+            document.getElementById('category-list').innerHTML = allCategories.map(c => `<div class="flex justify-between items-center bg-gray-700 p-2 rounded-md"><span class="text-white">${c.name}</span><button class="delete-category-btn text-red-500" data-id="${c.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`).join('');
+            document.getElementById('product-category').innerHTML = '<option value="">Select Category</option>' + allCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            document.getElementById('category-filters').innerHTML = '<button class="filter-btn active" data-id="all">All</button>' + allCategories.map(c => `<button class="filter-btn" data-id="${c.id}">${c.name}</button>`).join('');
             lucide.createIcons();
         }
 
-        function renderCategoriesAdmin(categories) {
-            categoryList.innerHTML = '';
-            categories.forEach(cat => {
-                categoryList.innerHTML += `
-                    <div class="flex justify-between items-center bg-gray-700 p-2 rounded-md">
-                        <span class="text-white">${cat.name}</span>
-                        <button class="delete-category-btn text-red-500 hover:text-red-400" data-id="${cat.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </div>`;
-            });
-             lucide.createIcons();
+        function renderCart() {
+            const cartItemsContainer = document.getElementById('cart-items-container');
+            if (cart.length === 0) {
+                document.getElementById('cart-summary').classList.add('hidden');
+                document.getElementById('empty-cart-message').classList.remove('hidden');
+            } else {
+                document.getElementById('cart-summary').classList.remove('hidden');
+                document.getElementById('empty-cart-message').classList.add('hidden');
+                cartItemsContainer.innerHTML = cart.map(item => `
+                    <div class="flex items-center gap-4 py-2">
+                        <img src="${item.imageUrl}" class="w-16 h-16 object-cover rounded-md">
+                        <div class="flex-grow"><p class="font-semibold text-white">${item.name}</p><p class="text-sm text-gray-400">EGP ${Number(item.price).toFixed(2)}</p></div>
+                        <div class="flex items-center gap-2"><button class="update-quantity-btn" data-id="${item.id}" data-change="-1">-</button><span>${item.quantity}</span><button class="update-quantity-btn" data-id="${item.id}" data-change="1">+</button></div>
+                        <button class="remove-from-cart-btn text-red-500" data-id="${item.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>`).join('');
+            }
+            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const shipping = cart.length > 0 ? SHIPPING_COST : 0;
+            const grandTotal = subtotal + shipping;
+            document.getElementById('cart-subtotal').textContent = `EGP ${subtotal.toFixed(2)}`;
+            document.getElementById('cart-grand-total').textContent = `EGP ${grandTotal.toFixed(2)}`;
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const cartItemCount = document.getElementById('cart-item-count');
+            cartItemCount.textContent = totalItems;
+            cartItemCount.classList.toggle('hidden', totalItems === 0);
+            lucide.createIcons();
         }
-
+        
         function renderOrdersAdmin(orders) {
-            orderList.innerHTML = '';
-            orders.forEach(order => {
-                const statusOptions = ORDER_STATUSES.map(s => `<option value="${s}" ${order.status === s ? 'selected' : ''}>${s}</option>`).join('');
-                orderList.innerHTML += `
-                     <div class="flex justify-between items-center bg-gray-700 p-2 rounded-md gap-2">
-                        <div class="text-sm">
-                           <span class="font-bold text-white">${order.customerName}</span>
-                           <div class="text-gray-400 text-xs">${order.orderId} <button class="copy-id-btn" data-id="${order.orderId}"><i data-lucide="copy" class="w-3 h-3 inline-block"></i></button></div>
-                        </div>
-                        <select class="status-select bg-gray-800 text-white text-sm rounded p-1" data-id="${order.id}">${statusOptions}</select>
-                    </div>`;
-            });
-             lucide.createIcons();
-        }
-        
-        function updateCategoryDropdown(categories) {
-            productCategorySelect.innerHTML = '<option value="">Select Category</option>';
-            categories.forEach(cat => {
-                productCategorySelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
-            });
-        }
-        
-        function renderCategoryFilters(categories) {
-            categoryFilters.innerHTML = '<button class="filter-btn active" data-id="all">All</button>';
-            categories.forEach(cat => {
-                categoryFilters.innerHTML += `<button class="filter-btn" data-id="${cat.id}">${cat.name}</button>`;
-            });
-        }
-        
-        function resetProductForm() {
-            productForm.reset();
-            productForm.querySelector('#product-id').value = '';
-            document.getElementById('form-cancel-btn').classList.add('hidden');
-            productForm.querySelector('button[type="submit"]').textContent = 'Save Product';
+            document.getElementById('order-list').innerHTML = orders.map(order => {
+                const statusOptions = ['Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => `<option value="${s}" ${order.status === s ? 'selected' : ''}>${s}</option>`).join('');
+                const itemsHtml = order.items.map(item => `<li>${item.quantity}x ${item.name}</li>`).join('');
+                return `<details class="bg-gray-700 rounded-md overflow-hidden"><summary class="flex justify-between items-center p-2 cursor-pointer"><div><span class="font-bold text-white">${order.customerInfo.name}</span> <span class="text-xs text-gray-400">(${order.orderId})</span></div><select class="status-select bg-gray-800 text-white text-sm rounded p-1" data-id="${order.id}">${statusOptions}</select></summary><div class="p-2 text-sm bg-gray-700/50"><p><strong>Address:</strong> ${order.customerInfo.address}</p><p><strong>Phone:</strong> ${order.customerInfo.phone}</p><p><strong>Total:</strong> EGP ${order.totalAmount.toFixed(2)}</p><ul class="list-disc pl-5 mt-2">${itemsHtml}</ul></div></details>`;
+            }).join('');
         }
 
-        // --- Event Listeners ---
-        document.getElementById('admin-toggle-btn').addEventListener('click', () => {
-             if (isAdminLoggedIn) {
-                adminPanel.classList.remove('translate-x-full');
-            } else {
-                passwordModal.classList.remove('hidden');
-            }
+        function updateAdminDashboard() {
+            if (!allOrders.length && !allProducts.length) return;
+            // Revenue & Orders
+            document.getElementById('total-revenue').textContent = `EGP ${allOrders.reduce((sum, order) => sum + order.totalAmount, 0).toFixed(2)}`;
+            document.getElementById('total-orders').textContent = allOrders.length;
+            // Best Sellers
+            const sales = {};
+            allOrders.forEach(order => { order.items.forEach(item => { sales[item.id] = (sales[item.id] || 0) + item.quantity; }); });
+            const bestSellers = Object.entries(sales).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            document.getElementById('best-sellers-list').innerHTML = bestSellers.map(([id, qty]) => {
+                const product = allProducts.find(p => p.id === id);
+                return `<li>${product ? product.name : 'Unknown Product'} <span class="text-gray-500">- ${qty} sold</span></li>`;
+            }).join('') || '<li>No sales data yet.</li>';
+            // Low Stock
+            const lowStock = allProducts.filter(p => p.quantity > 0 && p.quantity <= 3);
+            document.getElementById('low-stock-list').innerHTML = lowStock.map(p => `<li>${p.name} <span class="text-yellow-500">- ${p.quantity} left</span></li>`).join('') || '<li>No items with low stock.</li>';
+        }
+
+        function showProductDetails(productId) {
+            const product = allProducts.find(p => p.id === productId); if (!product) return;
+            document.getElementById('product-detail-image').style.backgroundImage = `url('${product.imageUrl}')`;
+            document.getElementById('product-detail-name').textContent = product.name;
+            document.getElementById('product-detail-price').textContent = `EGP ${Number(product.price).toFixed(2)}`;
+            document.getElementById('product-detail-description').textContent = product.description;
+            const addToCartBtn = document.getElementById('product-detail-add-to-cart');
+            addToCartBtn.dataset.id = productId;
+            const isSoldOut = product.quantity <= 0;
+            addToCartBtn.disabled = isSoldOut; addToCartBtn.textContent = isSoldOut ? 'Sold Out' : 'Add to Cart';
+            modalOverlay.classList.remove('hidden'); productDetailModal.classList.remove('hidden');
+        }
+
+        function addToCart(productId) {
+            const product = allProducts.find(p => p.id === productId); if (!product || product.quantity <= 0) return;
+            const cartItem = cart.find(item => item.id === productId);
+            if (cartItem) { if (cartItem.quantity < product.quantity) cartItem.quantity++; else alert('No more items in stock!'); } 
+            else { cart.push({ ...product, quantity: 1 }); }
+            saveCart(); renderCart();
+        }
+
+        function updateQuantity(productId, change) {
+            const cartItem = cart.find(item => item.id === productId); if (!cartItem) return;
+            const product = allProducts.find(p => p.id === productId); const newQuantity = cartItem.quantity + change;
+            if (newQuantity > 0 && newQuantity <= product.quantity) { cartItem.quantity = newQuantity; } 
+            else if (newQuantity <= 0) { cart = cart.filter(item => item.id !== productId); } 
+            else { alert('No more items in stock!'); }
+            saveCart(); renderCart();
+        }
+        
+        function saveCart() { localStorage.setItem('nileCrestCart', JSON.stringify(cart)); }
+        function loadCart() { const sc = localStorage.getItem('nileCrestCart'); if (sc) cart = JSON.parse(sc); renderCart(); }
+
+        document.addEventListener('click', e => {
+            if (e.target.closest('.product-card')) showProductDetails(e.target.closest('.product-card').dataset.id);
+            if (e.target.closest('#product-detail-add-to-cart')) { addToCart(e.target.closest('#product-detail-add-to-cart').dataset.id); closeModal(productDetailModal); cartPanel.classList.remove('translate-x-full'); }
         });
-
-        document.getElementById('admin-close-btn').addEventListener('click', () => adminPanel.classList.add('translate-x-full'));
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            isAdminLoggedIn = false;
-            sessionStorage.removeItem('admin_logged_in');
-            adminPanel.classList.add('translate-x-full');
-            alert('You have been logged out.');
-        });
         
-        document.getElementById('password-modal-close-btn').addEventListener('click', () => passwordModal.classList.add('hidden'));
-
-        passwordForm.addEventListener('submit', (e) => {
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const password = document.getElementById('admin-password').value;
-            if (password === ADMIN_PASSWORD) {
-                isAdminLoggedIn = true;
-                sessionStorage.setItem('admin_logged_in', 'true');
-                passwordModal.classList.add('hidden');
-                adminPanel.classList.remove('translate-x-full');
-                passwordForm.reset();
-                passwordError.classList.add('hidden');
-            } else {
-                passwordError.classList.add('hidden');
-            }
-        });
-
-        // Product Form
-        productForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('product-id').value;
-            const productData = {
-                name: document.getElementById('product-name').value,
-                price: parseFloat(document.getElementById('product-price').value),
-                imageUrl: document.getElementById('product-image').value,
-                categoryId: productCategorySelect.value
+            const batch = writeBatch(db);
+            const orderId = 'ORD-' + Date.now().toString().slice(-6);
+            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const grandTotal = subtotal + SHIPPING_COST;
+            const orderData = {
+                orderId, customerInfo: { name: document.getElementById('customer-name-checkout').value, address: document.getElementById('customer-address').value, phone: document.getElementById('customer-phone').value },
+                items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity })),
+                totalAmount: grandTotal, status: 'Processing', createdAt: serverTimestamp()
             };
+            let stockError = false;
+            for (const item of cart) {
+                const productRef = doc(productsCollection, item.id); const product = allProducts.find(p => p.id === item.id);
+                if (product.quantity < item.quantity) { stockError = true; break; }
+                batch.update(productRef, { quantity: product.quantity - item.quantity });
+            }
+            if (stockError) { alert("Some items in your cart are out of stock."); return; }
+            batch.set(doc(ordersCollection), orderData);
             try {
-                if (id) await updateDoc(doc(productsCollection, id), productData);
-                else await addDoc(productsCollection, { ...productData, createdAt: serverTimestamp() });
-                resetProductForm();
-            } catch (error) { console.error("Error saving product: ", error); }
-        });
-
-        // Category Form
-        categoryForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('category-name').value.trim();
-            if(name) {
-                try {
-                   await addDoc(categoriesCollection, { name });
-                   categoryForm.reset();
-                } catch(error) { console.error("Error adding category:", error); }
-            }
-        });
-
-        // Order Form
-        orderForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const customerName = document.getElementById('customer-name').value.trim();
-            if(customerName) {
-                const orderId = 'ORD-' + Date.now().toString().slice(-6);
-                try {
-                    await addDoc(ordersCollection, { 
-                        customerName, 
-                        orderId, 
-                        status: 'Processing', 
-                        createdAt: serverTimestamp() 
-                    });
-                    orderForm.reset();
-                } catch(error) { console.error("Error creating order: ", error); }
-            }
-        });
-
-        // Admin Panel Lists (Delete, Edit, Update Status)
-        adminPanel.addEventListener('click', async (e) => {
-            const copyBtn = e.target.closest('.copy-id-btn');
-            if (copyBtn) {
-                navigator.clipboard.writeText(copyBtn.dataset.id).then(() => {
-                    alert('Order ID copied!');
-                });
-            }
-            const deleteCategoryBtn = e.target.closest('.delete-category-btn');
-            if (deleteCategoryBtn) {
-                const catId = deleteCategoryBtn.dataset.id;
-                if (allProducts.some(p => p.categoryId === catId)) {
-                    alert('Cannot delete category as it is used by products.'); return;
-                }
-                if (confirm('Delete this category?')) {
-                    try { await deleteDoc(doc(categoriesCollection, catId)); } catch(e) { console.error(e); }
-                }
-            }
-        });
-
-        orderList.addEventListener('change', async (e) => {
-            if (e.target.classList.contains('status-select')) {
-                const id = e.target.dataset.id;
-                const newStatus = e.target.value;
-                try { await updateDoc(doc(ordersCollection, id), { status: newStatus }); } catch (e) { console.error(e); }
-            }
+                await batch.commit(); cart = []; saveCart(); renderCart(); closeModal(checkoutModal);
+                document.getElementById('success-order-id').textContent = orderId; modalOverlay.classList.remove('hidden'); orderSuccessModal.classList.remove('hidden');
+            } catch(err) { console.error(err); alert('Error placing order.'); }
         });
         
-        productGrid.addEventListener('click', (e) => {
-            const button = e.target.closest('button');
-            if (!button) return;
-            const id = button.dataset.id;
-            
-            if (button.classList.contains('edit-btn')) {
-                if (!isAdminLoggedIn) { alert("Please log in as admin to edit products."); return; }
-                const p = allProducts.find(p => p.id === id);
-                if(p) {
-                    document.getElementById('product-id').value = id;
-                    document.getElementById('product-name').value = p.name;
-                    document.getElementById('product-price').value = p.price;
-                    document.getElementById('product-image').value = p.imageUrl;
-                    productCategorySelect.value = p.categoryId || "";
-                    document.getElementById('form-cancel-btn').classList.remove('hidden');
-                    productForm.querySelector('button[type="submit"]').textContent = 'Update Product';
-                    adminPanel.classList.remove('translate-x-full');
-                }
-            } else if (button.classList.contains('delete-btn')) {
-                if (!isAdminLoggedIn) { alert("Please log in as admin to delete products."); return; }
-                if (confirm('Delete this product?')) {
-                    deleteDoc(doc(productsCollection, id)).catch(e => console.error(e));
-                }
-            }
-        });
-        
-        // Filtering
-        categoryFilters.addEventListener('click', (e) => {
-            const btn = e.target.closest('.filter-btn');
-            if(btn) {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const categoryId = btn.dataset.id;
-                renderProducts(categoryId === 'all' ? allProducts : allProducts.filter(p => p.categoryId === categoryId));
-            }
-        });
-
-        // Status Modal Logic
-        document.getElementById('order-status-link').addEventListener('click', (e) => { e.preventDefault(); statusModal.classList.remove('hidden'); });
-        document.getElementById('order-status-link-mobile').addEventListener('click', (e) => { e.preventDefault(); statusModal.classList.remove('hidden'); });
-        document.getElementById('status-modal-close-btn').addEventListener('click', () => {
-            statusModal.classList.add('hidden');
-            document.getElementById('status-result').innerHTML = ''; // Clear results on close
-            statusForm.reset();
-        });
-
-        const getStatusClass = (status) => {
-            switch (status) {
-                case 'Processing': return 'bg-yellow-500/20 text-yellow-400';
-                case 'Shipped': return 'bg-blue-500/20 text-blue-400';
-                case 'Delivered': return 'bg-green-500/20 text-green-400';
-                case 'Cancelled': return 'bg-red-500/20 text-red-500';
-                default: return 'bg-gray-500/20 text-gray-400';
-            }
-        };
-
-        statusForm.addEventListener('submit', async (e) => {
+        document.getElementById('order-status-form').addEventListener('submit', async e => {
             e.preventDefault();
-            const resultDiv = document.getElementById('status-result');
-            const orderIdToTrack = document.getElementById('status-order-id').value.trim();
-            if (!orderIdToTrack) return;
-            
-            resultDiv.innerHTML = `<p class="text-gray-400">Searching...</p>`;
-
-            const q = query(ordersCollection, where("orderId", "==", orderIdToTrack));
+            const orderId = document.getElementById('order-id-input').value.trim();
+            const resultDiv = document.getElementById('order-status-result');
+            resultDiv.innerHTML = '<p>Searching...</p>';
+            const q = query(ordersCollection, where("orderId", "==", orderId));
             const querySnapshot = await getDocs(q);
-
             if (querySnapshot.empty) {
-                resultDiv.innerHTML = `<p class="text-red-500 font-semibold">No order found with ID: ${orderIdToTrack}</p>`;
+                resultDiv.innerHTML = '<p class="text-red-500">Order ID not found. Please check the ID and try again.</p>';
             } else {
                 const order = querySnapshot.docs[0].data();
-                const statusClass = getStatusClass(order.status);
-                
-                resultDiv.innerHTML = `
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="text-gray-400">Status for order <span class="font-bold text-white">${order.orderId}</span></p>
-                        <p class="text-2xl font-bold mt-2 inline-block px-3 py-1 rounded-md ${statusClass}">${order.status}</p>
-                    </div>
-                `;
+                const statuses = ['Processing', 'Shipped', 'Delivered'];
+                const currentStatusIndex = statuses.indexOf(order.status);
+                const timeline = statuses.map((status, index) => {
+                    const isActive = index <= currentStatusIndex;
+                    return `<div class="flex items-center"><div class="w-6 h-6 rounded-full flex items-center justify-center ${isActive ? 'bg-brand-gold' : 'bg-gray-600'}"><i data-lucide="check" class="w-4 h-4 text-brand-blue"></i></div><span class="ml-4 ${isActive ? 'text-white' : 'text-gray-500'}">${status}</span></div>${index < statuses.length - 1 ? `<div class="h-8 w-px bg-gray-600 ml-3"></div>` : ''}`;
+                }).join('');
+                resultDiv.innerHTML = timeline;
+                lucide.createIcons();
             }
         });
+        
+        function closeModal(modal) { modal.classList.add('hidden'); if (!document.querySelector('.fixed.inset-0.z-\\[70\\]:not(.hidden)')) modalOverlay.classList.add('hidden'); }
+        document.getElementById('product-detail-close-btn').addEventListener('click', () => closeModal(productDetailModal));
+        document.getElementById('checkout-modal-close-btn').addEventListener('click', () => closeModal(checkoutModal));
+        document.getElementById('order-success-close-btn').addEventListener('click', () => closeModal(orderSuccessModal));
+        document.getElementById('order-status-close-btn').addEventListener('click', () => closeModal(orderStatusModal));
+        document.getElementById('cart-close-btn').addEventListener('click', () => cartPanel.classList.add('translate-x-full'));
+        document.getElementById('checkout-btn').addEventListener('click', () => { 
+            cartPanel.classList.add('translate-x-full'); 
+            modalOverlay.classList.remove('hidden'); 
+            checkoutModal.classList.remove('hidden');
+            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const grandTotal = subtotal + SHIPPING_COST;
+            document.getElementById('checkout-subtotal').textContent = `EGP ${subtotal.toFixed(2)}`;
+            document.getElementById('checkout-grand-total').textContent = `EGP ${grandTotal.toFixed(2)}`;
+        });
+        document.getElementById('order-status-link').addEventListener('click', (e) => { e.preventDefault(); modalOverlay.classList.remove('hidden'); orderStatusModal.classList.remove('hidden'); });
+        document.getElementById('order-status-link-mobile').addEventListener('click', (e) => { e.preventDefault(); modalOverlay.classList.remove('hidden'); orderStatusModal.classList.remove('hidden'); });
 
+        document.body.addEventListener('click', e => {
+            if (e.target.closest('.update-quantity-btn')) updateQuantity(e.target.closest('.update-quantity-btn').dataset.id, parseInt(e.target.closest('.update-quantity-btn').dataset.change));
+            if (e.target.closest('.remove-from-cart-btn')) { cart = cart.filter(item => item.id !== e.target.closest('.remove-from-cart-btn').dataset.id); saveCart(); renderCart(); }
+            if (e.target.closest('.delete-category-btn')) { if (confirm('Delete category?')) deleteDoc(doc(categoriesCollection, e.target.closest('.delete-category-btn').dataset.id)); }
+        });
+        
+        document.getElementById('order-list').addEventListener('change', e => { if(e.target.classList.contains('status-select')) updateDoc(doc(ordersCollection, e.target.dataset.id), { status: e.target.value }); });
+        
+        document.getElementById('search-input').addEventListener('input', e => {
+            const searchTerm = e.target.value.toLowerCase();
+            renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(searchTerm) || p.description.toLowerCase().includes(searchTerm)));
+        });
+
+        document.getElementById('category-filters').addEventListener('click', e => {
+            const btn = e.target.closest('.filter-btn'); if(btn) {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderProducts(btn.dataset.id === 'all' ? allProducts : allProducts.filter(p => p.categoryId === btn.dataset.id));
+            }
+        });
+        
+        document.getElementById('product-form').addEventListener('submit', async (e) => {
+            e.preventDefault(); const id = document.getElementById('product-id').value;
+            const data = { name: document.getElementById('product-name').value, description: document.getElementById('product-description').value, price: parseFloat(document.getElementById('product-price').value), quantity: parseInt(document.getElementById('product-quantity').value), imageUrl: document.getElementById('product-image').value, categoryId: document.getElementById('product-category').value };
+            if (id) await updateDoc(doc(productsCollection, id), data); else await addDoc(productsCollection, { ...data, createdAt: serverTimestamp() });
+            e.target.reset(); document.getElementById('product-id').value = '';
+        });
+
+        document.getElementById('category-form').addEventListener('submit', async (e) => {
+            e.preventDefault(); const name = document.getElementById('category-name').value.trim();
+            if(name) { await addDoc(categoriesCollection, { name }); e.target.reset(); }
+        });
+        
+        document.querySelector('.panel').addEventListener('click', e => {
+            const tab = e.target.closest('.admin-tab'); if(!tab) return;
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(`${tab.dataset.tab}-tab`).classList.remove('hidden');
+        });
+        
         document.addEventListener('DOMContentLoaded', () => {
-            // Check if user was already logged in this session
-            if (sessionStorage.getItem('admin_logged_in') === 'true') {
-                isAdminLoggedIn = true;
-            }
-
-            // NEW CODE: Check for the secret admin parameter in the URL
             const urlParams = new URLSearchParams(window.location.search);
-            const isAdminMode = urlParams.get('admin');
-            if (isAdminMode === 'true') {
-                document.getElementById('admin-toggle-btn').classList.remove('hidden');
-            }
-            
-            initialize();
-            lucide.createIcons();
-
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
+            if (urlParams.get('admin') === 'true') document.getElementById('admin-toggle-btn').classList.remove('hidden');
+            initialize(); loadCart(); lucide.createIcons();
+            document.getElementById('mobile-menu-button').addEventListener('click', () => document.getElementById('mobile-menu').classList.toggle('hidden'));
         });
     </script>
 </body>
