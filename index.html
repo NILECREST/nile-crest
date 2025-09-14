@@ -79,7 +79,8 @@
                     <a href="#" id="order-status-link" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Order Status</a>
                 </nav>
                 <div class="flex items-center space-x-4">
-                    <button id="admin-toggle-btn" class="text-gray-300 hover:text-brand-gold" title="Admin Panel">
+                    <!-- The admin button is now hidden by default -->
+                    <button id="admin-toggle-btn" class="text-gray-300 hover:text-brand-gold hidden" title="Admin Panel">
                         <i data-lucide="settings"></i>
                     </button>
                     <a href="#" class="text-gray-300 hover:text-brand-gold"><i data-lucide="shopping-cart"></i></a>
@@ -540,6 +541,14 @@
             if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 isAdminLoggedIn = true;
             }
+
+            // NEW CODE: Check for the secret admin parameter in the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdminMode = urlParams.get('admin');
+            if (isAdminMode === 'true') {
+                document.getElementById('admin-toggle-btn').classList.remove('hidden');
+            }
+            
             initialize();
             lucide.createIcons();
 
