@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nile Crest</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* --- NILE CREST BRAND COLORS --- */
+        :root {
+            --brand-gold: #D4AF37; /* Shimmering Gold */
+            --brand-blue: #0A192F; /* Deep Lapis Lazuli Blue */
+            --light-text: #E6F1FF;
+            --dark-text: #051020;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--brand-blue);
+            color: var(--light-text);
+        }
+        
+        /* Using CSS variables for easy theme management */
+        .text-brand-gold { color: var(--brand-gold); }
+        .bg-brand-gold { background-color: var(--brand-gold); }
+        .border-brand-gold { border-color: var(--brand-gold); }
+        .ring-brand-gold { --tw-ring-color: var(--brand-gold); }
+
+        .btn {
+            @apply py-2 px-4 rounded-md font-semibold transition-all duration-300;
+        }
+        .btn-primary {
+            @apply bg-brand-gold text-brand-blue hover:bg-opacity-80;
+        }
+        .btn-secondary {
+            @apply bg-blue-900/50 text-white hover:bg-blue-800/60;
+        }
+        .admin-panel {
+            transition: transform 0.3s ease-in-out;
+        }
+        .filter-btn {
+             @apply px-4 py-2 text-sm font-semibold border rounded-full transition-colors duration-300;
+        }
+        .filter-btn.active {
+            @apply bg-brand-gold text-brand-blue border-brand-gold;
+        }
+        .filter-btn:not(.active) {
+            @apply bg-transparent text-gray-300 border-blue-800 hover:bg-blue-900/70 hover:text-white;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header Section -->
+    <header class="bg-brand-blue/80 backdrop-blur-md sticky top-0 z-50 border-b border-blue-900/50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="p-2 rounded-md text-gray-400 hover:text-white">
+                        <i data-lucide="menu"></i>
+                    </button>
+                </div>
+                <div class="flex-shrink-0 flex items-center justify-center md-justify-start flex-1 md:flex-none">
+                    <a href="#" class="flex items-center gap-3 text-white">
+                        <span class="text-2xl font-bold tracking-wider">NILECREST</span>
+                    </a>
+                </div>
+                <nav class="hidden md:flex md:space-x-8 ml-10">
+                    <a href="#" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Home</a>
+                    <a href="#products" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Products</a>
+                    <a href="#" id="order-status-link" class="text-gray-300 hover:text-brand-gold transition-colors duration-300">Order Status</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <button id="admin-toggle-btn" class="text-gray-300 hover:text-brand-gold" title="Admin Panel">
+                        <i data-lucide="settings"></i>
+                    </button>
+                    <a href="#" class="text-gray-300 hover:text-brand-gold"><i data-lucide="shopping-cart"></i></a>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-brand-gold">Home</a>
+                <a href="#products" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-brand-gold">Products</a>
+                <a href="#" id="order-status-link-mobile" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-brand-gold">Order Status</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="admin-panel fixed top-0 right-0 h-full w-96 bg-gray-900 shadow-lg z-50 p-6 transform translate-x-full overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-white">Admin Panel</h2>
+            <div class="flex items-center gap-4">
+                <button id="logout-btn" title="Logout" class="text-red-500 hover:text-red-400"><i data-lucide="log-out"></i></button>
+                <button id="admin-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+            </div>
+        </div>
+        
+        <!-- Manage Products -->
+        <div class="bg-gray-800 p-4 rounded-lg">
+            <h3 class="text-xl font-semibold mb-4 text-white">Manage Products</h3>
+            <form id="product-form" class="space-y-4">
+                <input type="hidden" id="product-id">
+                <input type="text" id="product-name" required placeholder="Product Name" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
+                <select id="product-category" required class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white"></select>
+                <input type="number" id="product-price" step="0.01" required placeholder="Price (EGP)" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
+                <input type="url" id="product-image" required placeholder="Image URL" class="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
+                <div class="flex gap-4">
+                    <button type="submit" class="btn btn-primary w-full !text-black">Save Product</button>
+                    <button type="button" id="form-cancel-btn" class="btn btn-secondary w-full hidden">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Manage Categories -->
+        <div class="bg-gray-800 p-4 rounded-lg mt-6">
+             <h3 class="text-xl font-semibold mb-4 text-white">Manage Categories</h3>
+             <form id="category-form" class="flex gap-2 mb-4">
+                 <input type="text" id="category-name" placeholder="New category name" required class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
+                 <button type="submit" class="btn btn-primary whitespace-nowrap !text-black">Add</button>
+             </form>
+             <div id="category-list" class="space-y-2"></div>
+        </div>
+
+        <!-- Manage Orders -->
+        <div class="bg-gray-800 p-4 rounded-lg mt-6">
+            <h3 class="text-xl font-semibold mb-4 text-white">Manage Orders</h3>
+            <form id="order-form" class="flex gap-2 mb-4">
+                <input type="text" id="customer-name" placeholder="Customer Name" required class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
+                <button type="submit" class="btn btn-primary whitespace-nowrap !text-black">Create Order</button>
+            </form>
+            <div id="order-list" class="space-y-2"></div>
+       </div>
+    </div>
+
+    <!-- Order Status Modal -->
+    <div id="status-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-white">Check Your Order Status</h2>
+                <button id="status-modal-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+            </div>
+            <form id="status-form">
+                <label for="status-order-id" class="block text-sm font-medium text-gray-300">Enter your Order ID</label>
+                <div class="flex gap-2 mt-1">
+                    <input type="text" id="status-order-id" required placeholder="e.g., ORD-123456" class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
+                    <button type="submit" class="btn btn-primary !text-black">Check</button>
+                </div>
+            </form>
+            <div id="status-result" class="mt-6"></div>
+        </div>
+    </div>
+    
+    <!-- Admin Password Modal -->
+    <div id="password-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-white">Admin Access</h2>
+                <button id="password-modal-close-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+            </div>
+            <form id="password-form">
+                <label for="admin-password" class="block text-sm font-medium text-gray-300">Enter Password</label>
+                <div class="flex gap-2 mt-1">
+                    <input type="password" id="admin-password" required class="block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm focus:ring-brand-gold focus:border-brand-gold text-white">
+                    <button type="submit" class="btn btn-primary !text-black">Login</button>
+                </div>
+                 <p id="password-error" class="text-red-500 text-sm mt-2 hidden">Incorrect password.</p>
+            </form>
+        </div>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="relative h-[60vh] sm:h-[80vh] w-full bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1611652022417-a551be9c93b3?q=80&w=2070&auto=format&fit=crop');">
+            <div class="absolute inset-0 bg-black/60"></div>
+            <div class="relative h-full flex flex-col items-center justify-center text-center text-white z-10 p-4">
+                <h1 class="text-4xl md:text-6xl font-bold tracking-wider">TIMELESS ELEGANCE</h1>
+                <p class="mt-4 text-lg md:text-xl max-w-lg">Crafted with passion, designed for you.</p>
+                <a href="#products" class="mt-8 bg-brand-gold text-brand-blue font-bold py-3 px-10 border border-transparent hover:bg-transparent hover:text-brand-gold hover:border-brand-gold transition-all duration-300">SHOP COLLECTION</a>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section id="products" class="py-16 sm:py-24">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center mb-8">Our Products</h2>
+                <div id="category-filters" class="flex flex-wrap justify-center gap-2 mb-12"></div>
+                <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-8"></div>
+                <div id="no-products-message" class="text-center text-gray-400 hidden">
+                    <p>No products have been added yet.</p>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+    
+    <footer class="pt-16 pb-8 border-t border-blue-900/50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            <p>&copy; 2025 Nile Crest. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, serverTimestamp, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- IMPORTANT: Change this password to something secure! ---
+        const ADMIN_PASSWORD = 'admin123';
+        // -----------------------------------------------------------
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : undefined;
+
+        let db, auth;
+        let productsCollection, categoriesCollection, ordersCollection;
+        let allProducts = [], allCategories = [], allOrders = [];
+        let isAdminLoggedIn = false;
+        const ORDER_STATUSES = ['Processing', 'Shipped', 'Delivered', 'Cancelled'];
+
+        const adminPanel = document.getElementById('admin-panel');
+        const passwordModal = document.getElementById('password-modal');
+        const passwordForm = document.getElementById('password-form');
+        const passwordError = document.getElementById('password-error');
+        const productForm = document.getElementById('product-form');
+        const categoryForm = document.getElementById('category-form');
+        const orderForm = document.getElementById('order-form');
+        const statusModal = document.getElementById('status-modal');
+        const statusForm = document.getElementById('status-form');
+        const productGrid = document.getElementById('product-grid');
+        const categoryList = document.getElementById('category-list');
+        const orderList = document.getElementById('order-list');
+        const productCategorySelect = document.getElementById('product-category');
+        const categoryFilters = document.getElementById('category-filters');
+
+        async function initialize() {
+            if (Object.keys(firebaseConfig).length === 0) { return; }
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
+                else await signInAnonymously(auth);
+
+                productsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+                categoriesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'categories');
+                ordersCollection = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+                
+                onSnapshot(productsCollection, snapshot => {
+                    allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderProducts(allProducts);
+                });
+                onSnapshot(categoriesCollection, snapshot => {
+                    allCategories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderCategoriesAdmin(allCategories);
+                    updateCategoryDropdown(allCategories);
+                    renderCategoryFilters(allCategories);
+                });
+                 onSnapshot(ordersCollection, snapshot => {
+                    allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderOrdersAdmin(allOrders);
+                });
+            } catch (error) { console.error("Firebase init failed:", error); }
+        }
+        
+        // --- RENDER FUNCTIONS ---
+        function renderProducts(productsToRender) {
+            productGrid.innerHTML = '';
+            document.getElementById('no-products-message').classList.toggle('hidden', !(productsToRender.length === 0 && allProducts.length === 0));
+            productsToRender.forEach(product => {
+                productGrid.innerHTML += `
+                    <div class="group relative">
+                        <div class="aspect-square w-full bg-cover bg-center rounded-md" style="background-image: url('${product.imageUrl}')" onerror="this.style.backgroundImage='url(https://placehold.co/400x400/0A192F/D4AF37?text=Image+Error)'"></div>
+                        <div class="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="edit-btn p-2 bg-gray-800/80 rounded-full hover:bg-brand-gold" data-id="${product.id}" title="Edit"><i data-lucide="pencil" class="w-4 h-4 text-white"></i></button>
+                            <button class="delete-btn p-2 bg-gray-800/80 rounded-full hover:bg-red-500" data-id="${product.id}" title="Delete"><i data-lucide="trash-2" class="w-4 h-4 text-white"></i></button>
+                        </div>
+                        <div class="pt-4 text-center">
+                            <h3 class="font-semibold text-white">${product.name}</h3>
+                            <p class="text-gray-400">EGP ${Number(product.price).toFixed(2)}</p>
+                        </div>
+                    </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function renderCategoriesAdmin(categories) {
+            categoryList.innerHTML = '';
+            categories.forEach(cat => {
+                categoryList.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-700 p-2 rounded-md">
+                        <span class="text-white">${cat.name}</span>
+                        <button class="delete-category-btn text-red-500 hover:text-red-400" data-id="${cat.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>`;
+            });
+             lucide.createIcons();
+        }
+
+        function renderOrdersAdmin(orders) {
+            orderList.innerHTML = '';
+            orders.forEach(order => {
+                const statusOptions = ORDER_STATUSES.map(s => `<option value="${s}" ${order.status === s ? 'selected' : ''}>${s}</option>`).join('');
+                orderList.innerHTML += `
+                     <div class="flex justify-between items-center bg-gray-700 p-2 rounded-md gap-2">
+                        <div class="text-sm">
+                           <span class="font-bold text-white">${order.customerName}</span>
+                           <div class="text-gray-400 text-xs">${order.orderId} <button class="copy-id-btn" data-id="${order.orderId}"><i data-lucide="copy" class="w-3 h-3 inline-block"></i></button></div>
+                        </div>
+                        <select class="status-select bg-gray-800 text-white text-sm rounded p-1" data-id="${order.id}">${statusOptions}</select>
+                    </div>`;
+            });
+             lucide.createIcons();
+        }
+        
+        function updateCategoryDropdown(categories) {
+            productCategorySelect.innerHTML = '<option value="">Select Category</option>';
+            categories.forEach(cat => {
+                productCategorySelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+            });
+        }
+        
+        function renderCategoryFilters(categories) {
+            categoryFilters.innerHTML = '<button class="filter-btn active" data-id="all">All</button>';
+            categories.forEach(cat => {
+                categoryFilters.innerHTML += `<button class="filter-btn" data-id="${cat.id}">${cat.name}</button>`;
+            });
+        }
+        
+        function resetProductForm() {
+            productForm.reset();
+            productForm.querySelector('#product-id').value = '';
+            document.getElementById('form-cancel-btn').classList.add('hidden');
+            productForm.querySelector('button[type="submit"]').textContent = 'Save Product';
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('admin-toggle-btn').addEventListener('click', () => {
+             if (isAdminLoggedIn) {
+                adminPanel.classList.remove('translate-x-full');
+            } else {
+                passwordModal.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('admin-close-btn').addEventListener('click', () => adminPanel.classList.add('translate-x-full'));
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            isAdminLoggedIn = false;
+            sessionStorage.removeItem('admin_logged_in');
+            adminPanel.classList.add('translate-x-full');
+            alert('You have been logged out.');
+        });
+        
+        document.getElementById('password-modal-close-btn').addEventListener('click', () => passwordModal.classList.add('hidden'));
+
+        passwordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('admin-password').value;
+            if (password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                sessionStorage.setItem('admin_logged_in', 'true');
+                passwordModal.classList.add('hidden');
+                adminPanel.classList.remove('translate-x-full');
+                passwordForm.reset();
+                passwordError.classList.add('hidden');
+            } else {
+                passwordError.classList.add('hidden');
+            }
+        });
+
+        // Product Form
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('product-id').value;
+            const productData = {
+                name: document.getElementById('product-name').value,
+                price: parseFloat(document.getElementById('product-price').value),
+                imageUrl: document.getElementById('product-image').value,
+                categoryId: productCategorySelect.value
+            };
+            try {
+                if (id) await updateDoc(doc(productsCollection, id), productData);
+                else await addDoc(productsCollection, { ...productData, createdAt: serverTimestamp() });
+                resetProductForm();
+            } catch (error) { console.error("Error saving product: ", error); }
+        });
+
+        // Category Form
+        categoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('category-name').value.trim();
+            if(name) {
+                try {
+                   await addDoc(categoriesCollection, { name });
+                   categoryForm.reset();
+                } catch(error) { console.error("Error adding category:", error); }
+            }
+        });
+
+        // Order Form
+        orderForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const customerName = document.getElementById('customer-name').value.trim();
+            if(customerName) {
+                const orderId = 'ORD-' + Date.now().toString().slice(-6);
+                try {
+                    await addDoc(ordersCollection, { 
+                        customerName, 
+                        orderId, 
+                        status: 'Processing', 
+                        createdAt: serverTimestamp() 
+                    });
+                    orderForm.reset();
+                } catch(error) { console.error("Error creating order: ", error); }
+            }
+        });
+
+        // Admin Panel Lists (Delete, Edit, Update Status)
+        adminPanel.addEventListener('click', async (e) => {
+            const copyBtn = e.target.closest('.copy-id-btn');
+            if (copyBtn) {
+                navigator.clipboard.writeText(copyBtn.dataset.id).then(() => {
+                    alert('Order ID copied!');
+                });
+            }
+            const deleteCategoryBtn = e.target.closest('.delete-category-btn');
+            if (deleteCategoryBtn) {
+                const catId = deleteCategoryBtn.dataset.id;
+                if (allProducts.some(p => p.categoryId === catId)) {
+                    alert('Cannot delete category as it is used by products.'); return;
+                }
+                if (confirm('Delete this category?')) {
+                    try { await deleteDoc(doc(categoriesCollection, catId)); } catch(e) { console.error(e); }
+                }
+            }
+        });
+
+        orderList.addEventListener('change', async (e) => {
+            if (e.target.classList.contains('status-select')) {
+                const id = e.target.dataset.id;
+                const newStatus = e.target.value;
+                try { await updateDoc(doc(ordersCollection, id), { status: newStatus }); } catch (e) { console.error(e); }
+            }
+        });
+        
+        productGrid.addEventListener('click', (e) => {
+            const button = e.target.closest('button');
+            if (!button) return;
+            const id = button.dataset.id;
+            
+            if (button.classList.contains('edit-btn')) {
+                if (!isAdminLoggedIn) { alert("Please log in as admin to edit products."); return; }
+                const p = allProducts.find(p => p.id === id);
+                if(p) {
+                    document.getElementById('product-id').value = id;
+                    document.getElementById('product-name').value = p.name;
+                    document.getElementById('product-price').value = p.price;
+                    document.getElementById('product-image').value = p.imageUrl;
+                    productCategorySelect.value = p.categoryId || "";
+                    document.getElementById('form-cancel-btn').classList.remove('hidden');
+                    productForm.querySelector('button[type="submit"]').textContent = 'Update Product';
+                    adminPanel.classList.remove('translate-x-full');
+                }
+            } else if (button.classList.contains('delete-btn')) {
+                if (!isAdminLoggedIn) { alert("Please log in as admin to delete products."); return; }
+                if (confirm('Delete this product?')) {
+                    deleteDoc(doc(productsCollection, id)).catch(e => console.error(e));
+                }
+            }
+        });
+        
+        // Filtering
+        categoryFilters.addEventListener('click', (e) => {
+            const btn = e.target.closest('.filter-btn');
+            if(btn) {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const categoryId = btn.dataset.id;
+                renderProducts(categoryId === 'all' ? allProducts : allProducts.filter(p => p.categoryId === categoryId));
+            }
+        });
+
+        // Status Modal Logic
+        document.getElementById('order-status-link').addEventListener('click', (e) => { e.preventDefault(); statusModal.classList.remove('hidden'); });
+        document.getElementById('order-status-link-mobile').addEventListener('click', (e) => { e.preventDefault(); statusModal.classList.remove('hidden'); });
+        document.getElementById('status-modal-close-btn').addEventListener('click', () => {
+            statusModal.classList.add('hidden');
+            document.getElementById('status-result').innerHTML = ''; // Clear results on close
+            statusForm.reset();
+        });
+
+        const getStatusClass = (status) => {
+            switch (status) {
+                case 'Processing': return 'bg-yellow-500/20 text-yellow-400';
+                case 'Shipped': return 'bg-blue-500/20 text-blue-400';
+                case 'Delivered': return 'bg-green-500/20 text-green-400';
+                case 'Cancelled': return 'bg-red-500/20 text-red-500';
+                default: return 'bg-gray-500/20 text-gray-400';
+            }
+        };
+
+        statusForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const resultDiv = document.getElementById('status-result');
+            const orderIdToTrack = document.getElementById('status-order-id').value.trim();
+            if (!orderIdToTrack) return;
+            
+            resultDiv.innerHTML = `<p class="text-gray-400">Searching...</p>`;
+
+            const q = query(ordersCollection, where("orderId", "==", orderIdToTrack));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                resultDiv.innerHTML = `<p class="text-red-500 font-semibold">No order found with ID: ${orderIdToTrack}</p>`;
+            } else {
+                const order = querySnapshot.docs[0].data();
+                const statusClass = getStatusClass(order.status);
+                
+                resultDiv.innerHTML = `
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <p class="text-gray-400">Status for order <span class="font-bold text-white">${order.orderId}</span></p>
+                        <p class="text-2xl font-bold mt-2 inline-block px-3 py-1 rounded-md ${statusClass}">${order.status}</p>
+                    </div>
+                `;
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user was already logged in this session
+            if (sessionStorage.getItem('admin_logged_in') === 'true') {
+                isAdminLoggedIn = true;
+            }
+            initialize();
+            lucide.createIcons();
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
+
